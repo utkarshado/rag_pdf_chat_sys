@@ -1,0 +1,13 @@
+{
+  "saved_at": "2026-06-12T01:05:40.665897",
+  "turns": [
+    {
+      "question": "explain regularization processes",
+      "answer": "I couldn't find that in the indexed documents."
+    },
+    {
+      "question": "something more beneficial than a dot product ?",
+      "answer": "Yes, the document describes a few scenarios where alternatives or enhancements are beneficial:\n\n1.  **Additive attention** can outperform dot product attention (without scaling) for larger values of `dk` (Source: attention_is_all_you_need.pdf).\n2.  **Multi-Head Attention** is found to be beneficial. It involves linearly projecting queries, keys, and values multiple times and performing attention functions in parallel, which helps counteract reduced effective resolution (Source: attention_is_all_you_need.pdf)."
+    }
+  ]
+}
