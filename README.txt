@@ -1,56 +1,112 @@
-# Chat With PDFs — A Simple RAG Chatbot
+# Chat With PDFs — A RAG-Powered PDF Chatbot
 
-This project lets you chat with your PDF documents using Retrieval-Augmented Generation (RAG).
+A project I built to learn how modern AI applications actually work under the hood.
 
-Instead of trying to fit an entire PDF into a model's context window, the application extracts text from PDFs, splits it into chunks, stores vector embeddings in ChromaDB, retrieves the most relevant chunks for a question, and uses Gemini to generate answers grounded in the document.
+Instead of sending an entire PDF to an LLM and hoping for the best, this application uses Retrieval-Augmented Generation (RAG) to find the most relevant information from a document and provide grounded answers.
 
-The goal of this project was to understand the core concepts behind modern AI applications such as embeddings, vector databases, retrieval, context injection, and conversational memory by building everything from scratch.
+The project started as a command-line application and was later extended into a web application using FastAPI and a custom frontend, then deployed publicly on Render.
 
-Never thought someone will actually read my README :)
+If you're reading this README, first of all, thank you. I genuinely built this project to understand the concepts behind AI engineering rather than just calling an API and getting a response.
+
+---
+
+## Live Demo
+
+Deployed on Render:
+
+**Live URL:** `https://your-render-url.onrender.com`
+
+*(Replace with your actual Render URL)*
+
 ---
 
 ## Features
 
-* Chat with one or multiple PDFs
-* Persistent vector database using ChromaDB
-* Automatic PDF chunking and embedding
-* Semantic search using vector similarity
-* Conversational chat history
+### Document Processing
+
+* Upload and chat with PDF documents
+* Automatic text extraction using PyMuPDF
+* Intelligent chunking with overlap
+* Vector embeddings using Gemini Embeddings
+* Persistent storage with ChromaDB
+
+### Retrieval-Augmented Generation (RAG)
+
+* Semantic search over document chunks
+* Context-aware retrieval
 * Query rewriting for follow-up questions
-* Source attribution showing which PDF was used
-* Session persistence across restarts
-* Command-line interface
+* Source-aware answers
+* Multi-turn conversations
+
+### Web Application
+
+* PDF upload through a browser interface
+* Interactive chat UI
+* Session-based conversations
+* FastAPI backend
+* Deployed and accessible online via Render
+
+### Command Line Interface
+
+* Add PDFs from local paths
+* List indexed documents
+* View chat history
+* Clear history and database
+* Ask questions directly from the terminal
 
 ---
 
 ## How It Works
 
-### Indexing Phase
+### Step 1: Indexing
 
-When a PDF is added:
+When a PDF is uploaded:
 
-PDF → Text Extraction → Chunking → Embeddings → ChromaDB
+```text
+PDF
+ ↓
+Text Extraction
+ ↓
+Chunking
+ ↓
+Embeddings
+ ↓
+ChromaDB
+```
 
 1. Text is extracted using PyMuPDF
 2. The document is split into overlapping chunks
 3. Each chunk is converted into an embedding vector
-4. Embeddings and metadata are stored in ChromaDB
+4. Chunks and metadata are stored in ChromaDB
 
-This only happens once per PDF.
+This process only happens once per document.
 
 ---
 
-### Question Answering Phase
+### Step 2: Question Answering
 
-When a question is asked:
+When a user asks a question:
 
-Question → Query Rewrite → Retrieval → Context Injection → Gemini → Answer
+```text
+Question
+ ↓
+Query Rewriting
+ ↓
+Vector Search
+ ↓
+Relevant Chunks
+ ↓
+Prompt Construction
+ ↓
+Gemini
+ ↓
+Answer
+```
 
-1. Follow-up questions are rewritten into standalone questions
-2. The question is embedded
-3. ChromaDB retrieves the most relevant chunks
-4. Retrieved chunks are injected into the prompt
-5. Gemini generates an answer using only the retrieved context
+1. Follow-up questions are rewritten into standalone questions when needed
+2. Relevant chunks are retrieved using semantic similarity search
+3. Retrieved context is injected into the prompt
+4. Gemini generates an answer using only the retrieved document content
 
 ---
 
@@ -62,15 +118,29 @@ Question → Query Rewrite → Retrieval → Context Injection → Gemini → An
 
 ### Embeddings
 
-* Gemini Embeddings
+* Gemini Embedding Model
 
 ### Vector Database
 
 * ChromaDB
 
+### Backend
+
+* FastAPI
+
+### Frontend
+
+* HTML
+* CSS
+* JavaScript
+
 ### PDF Processing
 
 * PyMuPDF
+
+### Deployment
+
+* Render
 
 ### Language
 
@@ -81,14 +151,20 @@ Question → Query Rewrite → Retrieval → Context Injection → Gemini → An
 ## Project Structure
 
 ```text
-chat_with_pdf/
+rag_pdf_chat_sys/
 │
-├── chat_pdf.py
-├── chroma_db/
-├── chat_history.json
-├── .env
-├── .env.example
+├── app.py                 # FastAPI backend
+├── chat_pdf.py            # Core RAG logic
 ├── requirements.txt
+├── render.yaml
+│
+├── frontend/
+│   ├── index.html
+│   ├── style.css
+│   └── script.js
+│
+├── uploads/
+├── chroma_db/
 └── README.md
 ```
 
@@ -99,8 +175,8 @@ chat_with_pdf/
 Clone the repository:
 
 ```bash
-git clone <your-repository-url>
-cd chat_with_pdf
+git clone <repository-url>
+cd rag_pdf_chat_sys
 ```
 
 Create a virtual environment:
@@ -117,7 +193,7 @@ Activate it:
 .venv\Scripts\activate
 ```
 
-### Linux / macOS
+### Linux/macOS
 
 ```bash
 source .venv/bin/activate
@@ -141,75 +217,70 @@ GEMINI_API_KEY=your_api_key_here
 
 ---
 
-## Running The Application
+## Running Locally
+
+Start the web application:
 
 ```bash
-python chat_pdf.py
+uvicorn app:app --reload
+```
+
+Open:
+
+```text
+http://127.0.0.1:8000
 ```
 
 ---
 
-## Commands
+## Deployment
 
-Add a PDF:
+This project is deployed using Render.
 
-```text
-add path/to/file.pdf
+### Backend + Frontend Deployment
+
+The FastAPI backend serves both:
+
+* API endpoints
+* Frontend files
+
+Deployment configuration:
+
+```yaml
+services:
+  - type: web
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
 ```
 
-Show indexed PDFs:
+Environment variables are managed through Render's dashboard.
 
-```text
-list
-```
+This project is deployed on Render and can be accessed through a public URL.
 
-Show conversation history:
+The application serves both the FastAPI backend and the frontend from a single deployment, making it easy to upload PDFs and chat with them directly from the browser.
 
-```text
-history
-```
-
-Clear chat history:
-
-```text
-clear history
-```
-
-Clear vector database:
-
-```text
-clear db
-```
-
-Clear everything:
-
-```text
-clear all
-```
-
-Exit:
-
-```text
-quit
-```
+One thing I learned during deployment is that building the RAG pipeline is only half the work — getting everything running reliably online is its own challenge.
 
 ---
 
-## Example
+## Example Usage
+
+Upload a PDF and ask questions such as:
 
 ```text
-🥰 You: add attention_is_all_you_need.pdf
+What is this document about?
 
-📖 Reading attention_is_all_you_need.pdf ...
-✂️ Chunking text ...
-🔢 Embedding chunks ...
-✅ Done
+Summarize the key points.
 
-🥰 You: What is multi-head attention?
+Who is the author?
 
-🤖 Multi-head attention allows the model to attend to
-different representation subspaces simultaneously...
+What methodology was used?
+
+Explain section 3 in simple terms.
 ```
+
+The system retrieves relevant chunks from the document and generates answers grounded in those sources.
 
 ---
 
@@ -217,32 +288,46 @@ different representation subspaces simultaneously...
 
 Building this project helped me understand:
 
-* RAG architecture
-* Vector embeddings
-* Semantic search
-* ChromaDB
-* Query rewriting
-* Conversational memory
-* Prompt construction
-* Context injection
-* LLM API integration
-* End-to-end AI application development
+- Retrieval-Augmented Generation (RAG)
+- Embeddings and vector search
+- ChromaDB
+- Semantic retrieval
+- Prompt engineering
+- Query rewriting
+- Conversational memory
+- FastAPI
+- Frontend-backend integration
+- API deployment
+- Building complete AI applications end-to-end
+
+More importantly, it helped me move beyond simple chatbot tutorials and understand how real-world AI systems are structured.
+
+This project started as:
+
+"Let me quickly make a PDF chatbot."
+
+Several debugging sessions later, it became a full FastAPI + RAG application deployed on Render.
 
 ---
 
 ## Future Improvements
 
-* Streamlit web interface
-* PDF image understanding
 * Hybrid search (keyword + vector search)
-* Citation-level source references
-* Local embedding models
-* Multi-modal RAG
-* Document upload through UI
-* FastAPI backend
+* Better citation support
+* Multi-PDF retrieval
+* Streaming responses
+* User authentication
+* Persistent cloud vector database
+* Multi-modal document understanding
+* Docker deployment
+* Advanced session management
 
 ---
 
 ## Disclaimer
 
-This project is intended for learning and experimentation. Responses are generated from retrieved document chunks and may not always be perfect, it is dumb. Always verify important information directly from the source documents.
+This project was built primarily for learning and experimentation.
+
+Responses are generated from retrieved document chunks and may occasionally be incomplete or inaccurate. For important information, always verify answers against the original document.
+
+And if the model gives a strange answer, there's a decent chance I'm already debugging it.
