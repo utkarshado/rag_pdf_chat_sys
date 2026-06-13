@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat with PDF</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">FastAPI + Gemini + ChromaDB</p>
+        <h1>Chat with PDF</h1>
+        <p class="subtitle">Upload a PDF, ask questions, and keep the conversation in one clean interface.</p>
+      </div>
+      <div class="status-card">
+        <span class="status-label">Current document</span>
+        <strong id="currentDoc">No PDF uploaded</strong>
+        <span class="muted" id="sessionLabel">Session ready</span>
+      </div>
+    </section>
+
+    <section class="panel upload-panel">
+      <div class="upload-row">
+        <input type="file" id="pdfInput" accept="application/pdf" />
+        <button id="uploadBtn">Upload PDF</button>
+      </div>
+      <div class="actions-row">
+        <button id="resetBtn" class="secondary">Reset session</button>
+      </div>
+      <p class="help-text">Upload a PDF once, then use the chat box below. The backend will index the document and answer only from that PDF.</p>
+    </section>
+
+    <section class="panel chat-panel">
+      <div id="chatBox" class="chat-box">
+        <div class="bot-message message">
+          <div class="message-meta">Assistant</div>
+          <div class="message-text">Upload a PDF to begin.</div>
+        </div>
+      </div>
+
+      <div class="composer">
+        <input
+          type="text"
+          id="questionInput"
+          placeholder="Ask something about the uploaded PDF..."
+          autocomplete="off"
+        />
+        <button id="sendBtn">Send</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>
