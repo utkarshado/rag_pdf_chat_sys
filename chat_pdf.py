@@ -97,22 +97,22 @@ def index_pdf(collection, pdf_path: str) -> bool:
     filename = Path(pdf_path).name
 
     if filename in get_indexed_files(collection):
-        print(f"  😁 Already indexed: {filename}  (skipping)")
+        print(f"  >> Already indexed: {filename}  (skipping)")
         return False
 
-    print(f"  📖 Reading {filename} ...")
+    print(f"  ~ Reading {filename} ...")
     raw_text = load_pdf(pdf_path)
     char_count = len(raw_text)
-    print(f"  ✂️  Chunking {char_count:,} characters ...")
+    print(f"  --  Chunking {char_count:,} characters ...")
     chunks = chunk_text(raw_text, pdf_path)
-    print(f"  🧨 Embedding {len(chunks)} chunks via Google API ...")
+    print(f"  ---- Embedding {len(chunks)} chunks via Google API ...")
 
     collection.add(
         ids       = [c["id"]     for c in chunks],
         documents = [c["text"]   for c in chunks],
         metadatas = [{"source": c["source"]} for c in chunks],
     )
-    print(f"  ✅ Done — '{filename}' indexed ({len(chunks)} chunks)")
+    print(f"   '{filename}' successfulluy indexed ({len(chunks)} chunks)")
     return True
 
 
@@ -154,7 +154,7 @@ class ChatHistory:
     def clear(self) -> None:
         self.turns = []
         Path(HISTORY_FILE).unlink(missing_ok=True)
-        print("  ✅ Chat history cleared.")
+        print("   Chat history cleared.")
 
     def is_empty(self) -> bool:
         return len(self.turns) == 0
@@ -180,7 +180,7 @@ class ChatHistory:
             print("\n  (No conversation history yet.)")
             return
         print(f"\n{'─'*60}")
-        print(f"  🛺 Chat History  ({self.summary()})")
+        print(f"   Chat History --------  ({self.summary()})")
         print(f"{'─'*60}")
         for i, turn in enumerate(self.turns, 1):
             print(f"\n  [{i}] You: {turn['question']}")
@@ -207,7 +207,7 @@ class ChatHistory:
             loaded = data.get("turns", [])[-MAX_HISTORY:]
             self.turns = loaded
             if loaded:
-                print(f"  🏍️ Resumed {len(loaded)} turn(s) from previous session.")
+                print(f"   >> Resumed {len(loaded)} turn(s) from previous session.")
         except Exception:
             self.turns = []
 
@@ -318,10 +318,10 @@ def handle_add(user_input: str, collection) -> None:
         return
     pdf_path = parts[1].strip().strip('"').strip("'")
     if not Path(pdf_path).exists():
-        print(f"  ❌ File not found: {pdf_path}")
+        print(f"  XX File not found XX : {pdf_path}")
         return
     if not pdf_path.lower().endswith(".pdf"):
-        print(f"  ⚠️  '{pdf_path}' doesn't look like a PDF (no .pdf extension).")
+        print(f"   XX  '{pdf_path}' doesn't look like a PDF (no .pdf extension). XX")
         confirm = input("  Continue anyway? (y/n): ").strip().lower()
         if confirm != "y":
             return
@@ -332,9 +332,9 @@ def handle_list(collection) -> None:
     
     indexed = get_indexed_files(collection)
     if not indexed:
-        print("\n  ⚠️  No PDFs indexed yet.  Use: add <path.pdf>")
+        print("\n  !!  No PDFs indexed yet.  Use: add <path.pdf>")
         return
-    print(f"\n  📚 Indexed PDFs ({len(indexed)}):")
+    print(f"\n  >> Indexed PDFs ({len(indexed)}):")
     for name in sorted(indexed):
         print(f"     • {name}")
 
@@ -348,20 +348,20 @@ def handle_clear(user_input: str, collection, history: ChatHistory) -> bool:
         return False
 
     if cmd in ("clear db", "clear database"):
-        confirm = input("  ⚠️  Delete ALL indexed PDFs? (yes/no): ").strip().lower()
+        confirm = input("  !!  Delete ALL indexed PDFs? (yes/no): ").strip().lower()
         if confirm == "yes":
             shutil.rmtree(DB_PATH, ignore_errors=True)
-            print("  ✅ Vector database cleared. Restart to re-index.")
+            print("  >> Vector database cleared. Restart to re-index.")
             return True
         print("  Cancelled.")
         return False
 
     if cmd == "clear all":
-        confirm = input("  ⚠️  Delete ALL data (DB + history)? (yes/no): ").strip().lower()
+        confirm = input("  !! Delete ALL data (DB + history)? (yes/no): ").strip().lower()
         if confirm == "yes":
             history.clear()
             shutil.rmtree(DB_PATH, ignore_errors=True)
-            print("  ✅ Everything cleared. Restart to re-index.")
+            print("  >> Everything cleared. Restart to re-index.")
             return True
         print("  Cancelled.")
         return False
@@ -384,25 +384,25 @@ def run_rag_pipeline(
 
     # Guard: need at least one PDF
     if collection.count() == 0:
-        print("  ⚠️  No PDFs indexed yet.  Use: add <path.pdf>")
+        print("  !!  No PDFs indexed yet.  Use: add <path.pdf>")
         return
 
     # ── Step A: rewrite vague follow-ups ──────────────────────────────────────
     if not history.is_empty():
-        print("  🔄 Checking for follow-up references ...")
+        print("  -- Checking for follow-up references ...")
         standalone = rewrite_query_if_needed(user_input, history, llm)
         if standalone.lower() != user_input.lower():
-            print(f"  📝 Searching as: \"{standalone}\"")
+            print(f"  ---- Searching as: \"{standalone}\"")
     else:
         standalone = user_input
 
     # ── Step B: retrieve relevant chunks ──────────────────────────────────────
-    print(f"  🔍 Searching {collection.count()} chunks ...")
+    print(f"  -- Searching {collection.count()} chunks ...")
     chunks = retrieve_chunks(collection, standalone)
     sources_found = sorted({c["source"] for c in chunks})
 
     # ── Step C: generate answer ───────────────────────────────────────────────
-    print(f"  🤖 Generating answer (from {len(chunks)} chunks) ...")
+    print(f"  ---- Generating answer (from {len(chunks)} chunks) ...")
     answer, sources = generate_answer(user_input, chunks, history, llm)
 
     # ── Step D: store turn ────────────────────────────────────────────────────
@@ -416,8 +416,8 @@ def run_rag_pipeline(
         else:
             print()
     print()
-    print(f"  📎 Sources: {', '.join(sources)}")
-    print(f"  📜 History: {history.summary()}")
+    print(f"  >> Sources: {', '.join(sources)}")
+    print(f"  >> History: {history.summary()}")
     print("─" * 60)
 
 
@@ -429,7 +429,7 @@ def main():
     # ── Check API key ──────────────────────────────────────────────────────────
     api_key = os.environ.get("GEMINI_API_KEY", "").strip()
     if not api_key:
-        print("\n  ❌ GEMINI_API_KEY not set.")
+        print("\n  !! GEMINI_API_KEY not set.")
         print("    Windows:    set GEMINI_API_KEY=your_key_here")
         sys.exit(1)
 
@@ -438,11 +438,11 @@ def main():
     llm = genai.GenerativeModel(LLM_MODEL)
 
     # ── Init ChromaDB ──────────────────────────────────────────────────────────
-    print(f"\n  🤓  Opening vector store at ./{DB_PATH} ...")
+    print(f"\n  --  Opening vector store at ./{DB_PATH} ...")
     try:
         collection = get_collection()
     except Exception as e:
-        print(f"  ❌ Could not open ChromaDB: {e}")
+        print(f"  XX Could not open ChromaDB XX : {e}")
         traceback.print_exc()
         sys.exit(1)
 
@@ -458,17 +458,17 @@ def main():
             if p.exists() and p.suffix.lower() == ".pdf":
                 index_pdf(collection, str(p))
             else:
-                print(f"  ⚠️  Skipped: {pdf_arg} (not found or not a .pdf)")
+                print(f"  >>  Skipped: {pdf_arg} (not found or not a .pdf)")
 
     # ── Show state ─────────────────────────────────────────────────────────────
     indexed = get_indexed_files(collection)
     print()
     if indexed:
-        print(f"  😶‍🌫️ Ready — {len(indexed)} PDF(s) indexed:")
+        print(f"  >> Ready — {len(indexed)} PDF(s) indexed:")
         for name in sorted(indexed):
             print(f"     • {name}")
     else:
-        print("  ⚠️  No PDFs indexed yet.")
+        print("  !!  No PDFs indexed yet.")
         print("  Add one with: add <path/to/file.pdf>")
 
     print(HELP_TEXT)
@@ -478,7 +478,7 @@ def main():
     # ── Main loop ──────────────────────────────────────────────────────────────
     while True:
         try:
-            user_input = input("\n  🥰 You: ").strip()
+            user_input = input("\n  :) You: ").strip()
         except (KeyboardInterrupt, EOFError):
             print("\n\n  Goodbye!\n")
             break
