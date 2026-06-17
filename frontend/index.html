@@ -7,98 +7,93 @@
   <link rel="stylesheet" href="/static/style.css" />
 </head>
 <body>
-
   <main class="app-shell">
 
+    <!-- Nav -->
+    <nav class="nav">
+      <span class="nav-brand">RAG<span>_</span></span>
+      <ul class="nav-links">
+        <li><a href="#">Upload</a></li>
+        <li><a href="#">Chat</a></li>
+        <li><a href="#">Session</a></li>
+      </ul>
+    </nav>
+
+    <!-- Hero -->
     <section class="hero">
+      <p class="eyebrow">FastAPI + Gemini + ChromaDB</p>
+      <h1 class="hero-title">
+        <span class="line-sans">Chat with</span>
+        <span class="line-serif">Your PDF</span>
+      </h1>
+      <p class="subtitle">Upload a PDF, ask questions, and keep the conversation in one clean interface. The backend indexes your document and answers only from it.</p>
 
-      <div class="hero-left">
-        <p class="eyebrow">FASTAPI + GEMINI + CHROMADB</p>
-
-        <h1>
-          Everything you need
-          <br>
-          to chat with PDFs
-        </h1>
-
-        <p class="subtitle">
-          Upload a PDF, ask questions, and get answers instantly using
-          Retrieval Augmented Generation powered by Gemini.
-        </p>
-
-        <div class="hero-actions">
-          <input
-            type="file"
-            id="pdfInput"
-            accept="application/pdf"
-          />
-
-          <button id="uploadBtn">
-            Upload PDF
-          </button>
-        </div>
-
+      <div class="hero-actions">
+        <a href="#upload" class="btn-primary">Upload a PDF →</a>
+        <a href="#chat" class="btn-outline">Start Chatting</a>
       </div>
 
-      <div class="hero-right">
-
-        <div class="status-card">
-
-          <span class="status-label">
-            Current Document
-          </span>
-
-          <strong id="currentDoc">
-            No PDF uploaded
-          </strong>
-
-          <span class="muted" id="sessionLabel">
-            Session Ready
-          </span>
-
-          <button id="resetBtn" class="secondary">
-            Reset Session
-          </button>
-
+      <!-- Stats -->
+      <div class="stats-row">
+        <div>
+          <div class="stat-number">RAG<sup>+</sup></div>
+          <div class="stat-label">Retrieval Augmented</div>
         </div>
-
+        <div>
+          <div class="stat-number">PDF</div>
+          <div class="stat-label">Source Grounded</div>
+        </div>
+        <div>
+          <div class="stat-number">0ms</div>
+          <div class="stat-label">Cold Start</div>
+        </div>
       </div>
-
     </section>
 
-    <section class="chat-wrapper">
+    <!-- Upload Panel -->
+    <section id="upload" class="panel upload-panel">
+      <div class="upload-left">
+        <p class="panel-label">Document</p>
+        <div class="upload-row">
+          <input type="file" id="pdfInput" accept="application/pdf" />
+          <button id="uploadBtn">Upload PDF</button>
+          <button id="resetBtn" class="secondary">Reset</button>
+        </div>
+        <p class="help-text">Upload once, then ask anything. The model answers only from the indexed PDF.</p>
+      </div>
+      <div class="doc-badge">
+        <span class="badge-label">Current document</span>
+        <strong id="currentDoc">No PDF uploaded</strong>
+        <span id="sessionLabel" class="muted"></span>
+      </div>
+    </section>
+
+    <!-- Chat Panel -->
+    <section id="chat" class="panel chat-panel">
+      <div class="chat-panel-header">
+        <span class="chat-panel-title">Conversation</span>
+      </div>
 
       <div id="chatBox" class="chat-box">
-
         <div class="bot-message message">
           <div class="message-meta">Assistant</div>
-          <div class="message-text">
-            Upload a PDF to begin.
-          </div>
+          <div class="message-text">Upload a PDF to begin.</div>
         </div>
-
       </div>
 
       <div class="composer">
-
         <input
           type="text"
           id="questionInput"
-          placeholder="Ask something about your PDF..."
+          placeholder="Ask something about the uploaded PDF..."
           autocomplete="off"
         />
-
-        <button id="sendBtn">
-          Send
-        </button>
-
+        <button id="sendBtn">Send</button>
       </div>
-
     </section>
 
   </main>
 
   <script src="/static/script.js"></script>
-
 </body>
 </html>
